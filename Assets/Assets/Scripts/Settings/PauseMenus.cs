@@ -64,22 +64,8 @@ public class PauseMenus : MonoBehaviour {
         MusicScript.auSource = music;
         music.volume = BGMvolume;
 
-        //just making sure the text for the difficulty are set properly upon reloading a saved game
-        switch (difficulty)
-        {
-            default:
-                diffText.text = "Easy";
-                break;
-            case Difficulty.Normal:
-                diffText.text = "Normal";
-                break;
-            case Difficulty.Hard:
-                diffText.text = "Hard";
-                break;
-        }
-        QualitySettings.SetQualityLevel(3);
-        quality = Quality.High;
-        gameSpeed = GameSpeed.Slow;
+        //loading all player prefs
+        Load();
     }
 
     //Update is called once per frame
@@ -276,7 +262,7 @@ public class PauseMenus : MonoBehaviour {
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
             if (curMenu == CurMenu.Quit)
-                print("The game should return to lobby"); //application.quit should be applied here
+                SceneManager.LoadScene("MainLobby");
             else if (curMenu == CurMenu.Reset)
             {
                 ResetLevel();
@@ -493,6 +479,50 @@ public class PauseMenus : MonoBehaviour {
                     goto case CurMenu.Quit;
             }
         }
+        Save();
+    }
+    //saving all data
+    public static void Save()
+    {
+        PlayerPrefs.SetFloat("BGMVolume",BGMvolume);
+        PlayerPrefs.SetFloat("SFXVolume", SFXvolume);
+        switch (difficulty)
+        {
+            case Difficulty.Easy:
+                PlayerPrefs.SetInt("Diff", (int)Difficulty.Easy);
+                break;
+            case Difficulty.Normal:
+                PlayerPrefs.SetInt("Diff", (int)Difficulty.Normal);
+                break;
+            case Difficulty.Hard:
+                PlayerPrefs.SetInt("Diff", (int)Difficulty.Hard);
+                break;
+        }
+        switch (gameSpeed)
+        {
+            case GameSpeed.Slowest:
+                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Slowest);
+                break;
+            case GameSpeed.Slow:
+                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Slow);
+                break;
+            case GameSpeed.Normal:
+                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Normal);
+                break;
+            case GameSpeed.Fast:
+                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Fast);
+                break;
+            case GameSpeed.Fastest:
+                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Fastest);
+                break;
+        }
+    }
+    //loading prefs
+    public static void Load()
+    {
+        PlayerPrefs.GetFloat("BGMVolume", BGMvolume);
+        PlayerPrefs.GetFloat("SFXVolume", SFXvolume);
+        print(BGMvolume);
     }
 
     //this changes the font for the current selected menu item and returns the font size of all other menu options
