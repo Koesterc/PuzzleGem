@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BasicMenusScript : MonoBehaviour {
     [SerializeField]
@@ -14,23 +15,24 @@ public class BasicMenusScript : MonoBehaviour {
     AudioClip click;
     [SerializeField]
     AudioSource au;
-    [SerializeField]
-    AudioSource music;
 
-    // float lerpTime = 0;
-    private void Update()
+    bool isLerping = false; //this is used to determine whether or not the coroutine is running
+
+    void Update()
     {
-        if (!myEvent.currentSelectedGameObject)
-            myEvent.SetSelectedGameObject(lastSelected);
+        //if (!myEvent.currentSelectedGameObject)
+        //     myEvent.SetSelectedGameObject(lastSelected);
+
     }
 
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
-        PauseMenus.Load();
-        music.volume = PauseMenus.BGMvolume;
+        //loading all data
+        SaveLoadPrefs.Load();
         au.volume = PauseMenus.SFXvolume;
+        //Time.timeScale = PauseMenus.gameSpeed;
 
         myEvent = GameObject.Find("Canvas/EventSystem").GetComponent<UnityEngine.EventSystems.EventSystem>();
         //finding all butons within the menu
@@ -44,7 +46,11 @@ public class BasicMenusScript : MonoBehaviour {
 	
 	public void SelectingNew()
     {
+        if (isLerping)
+            return;
+        isLerping = true;
         au.PlayOneShot(hover, PauseMenus.SFXvolume);
+ 
         Color c = button[0].GetComponent<Text>().color;
         c.a = 0;
         Transform menu = gameObject.transform;
@@ -62,6 +68,7 @@ public class BasicMenusScript : MonoBehaviour {
         if (myEvent.currentSelectedGameObject == button[0])
         {
             lastSelected = button[0];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[button.Count-1].GetComponent<Text>().fontSize = 30;
             button[button.Count-1].GetComponent<Text>().color = c;
             button[1].GetComponent<Text>().fontSize = 30;
@@ -73,6 +80,7 @@ public class BasicMenusScript : MonoBehaviour {
         else if (myEvent.currentSelectedGameObject == button[5])
         {
             lastSelected = button[5];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[4].GetComponent<Text>().fontSize = 30;
             button[4].GetComponent<Text>().color = c;
             button[0].GetComponent<Text>().fontSize = 30;
@@ -83,6 +91,7 @@ public class BasicMenusScript : MonoBehaviour {
         else if (myEvent.currentSelectedGameObject == button[1])
         {
             lastSelected = button[1];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[2].GetComponent<Text>().fontSize = 30;
             button[2].GetComponent<Text>().color = c;
             button[0].GetComponent<Text>().fontSize = 30;
@@ -95,6 +104,7 @@ public class BasicMenusScript : MonoBehaviour {
         else if (myEvent.currentSelectedGameObject == button[2])
         {
             lastSelected = button[2];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[3].GetComponent<Text>().fontSize = 30;
             button[3].GetComponent<Text>().color = c;
             button[1].GetComponent<Text>().fontSize = 30;
@@ -107,6 +117,7 @@ public class BasicMenusScript : MonoBehaviour {
         else if (myEvent.currentSelectedGameObject == button[3])
         {
             lastSelected = button[3];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[4].GetComponent<Text>().fontSize = 30;
             button[4].GetComponent<Text>().color = c;
             button[2].GetComponent<Text>().fontSize = 30;
@@ -119,6 +130,7 @@ public class BasicMenusScript : MonoBehaviour {
         else if (myEvent.currentSelectedGameObject == button[4])
         {
             lastSelected = button[4];
+            lastSelected.GetComponent<Text>().raycastTarget = true;
             button[5].GetComponent<Text>().fontSize = 30;
             button[5].GetComponent<Text>().color = c;
             button[3].GetComponent<Text>().fontSize = 30;
@@ -151,5 +163,26 @@ public class BasicMenusScript : MonoBehaviour {
         button[one].GetComponent<Text>().raycastTarget = true;
         button[two].GetComponent<Text>().raycastTarget = true;
         transform.rotation = b;
+        isLerping = false;
      }
+
+    public void GameStart()
+    {
+        Color c = button[0].GetComponent<Text>().color;
+        c.a = .05f;
+        au.PlayOneShot(click, PauseMenus.SFXvolume);
+        foreach (Transform child in gameObject.transform)
+        {
+            child.gameObject.GetComponent<Text>().color = c;
+            child.gameObject.GetComponent<Text>().raycastTarget = false;
+        }
+        StartCoroutine(myCor());
+    }
+    public IEnumerator myCor()
+    {
+        Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
+        title.Play("Crumble");
+        yield return new WaitForSeconds(title.GetCurrentAnimatorStateInfo(0).length);
+        SceneManager.LoadScene("Level01");
+    }
 }

@@ -49,11 +49,12 @@ public class PauseMenus : MonoBehaviour {
     public static GameSpeed gameSpeed;
     public enum Resolution { Small, Medium, Fullscreen }
     [HideInInspector]
-    public Resolution resolution;
+    public static Resolution resolution;
+    public static float scaleTime = 1f;
 
     public static float BGMvolume = .3f;
     public static float SFXvolume = .8f;
-    static float brightness;
+    public static float brightness;
 
     void Start()
     {
@@ -62,10 +63,17 @@ public class PauseMenus : MonoBehaviour {
         _audio = gameObject.GetComponent<AudioSource>();
         AudioSource music = GameObject.Find("GameManager/Music").GetComponent<AudioSource>();
         MusicScript.auSource = music;
-        music.volume = BGMvolume;
 
+        //setting defaults
+        difficulty = Difficulty.Normal;
+        gameSpeed = GameSpeed.Slow;
+        resolution = Resolution.Fullscreen;
+        scaleTime = 1f;
+        SFXvolume = .8f;
+        BGMvolume = .3f;
+        brightness = 255;
         //loading all player prefs
-        Load();
+        SaveLoadPrefs.Load();
     }
 
     //Update is called once per frame
@@ -85,20 +93,13 @@ public class PauseMenus : MonoBehaviour {
             {
                 pause.SetActive(true);
                 pauseButton.SetActive(false);
-                gamePaused = true;
+                Time.timeScale = 0;
             }
             else
             {
                 pause.SetActive(false);
                 pauseButton.SetActive(true);
-                gamePaused = false;
-                //restarting the countdown timer
-                CountDownScript countDown = GameObject.Find("Canvas/UIText/Time/Text").GetComponent<CountDownScript>();
-                countDown.StartCoroutine(countDown.gameObject.GetComponent<CountDownScript>().CountDown());
-                //restarting the add score method
-                AddingScore score = GameObject.Find("Canvas/UIText/Points").GetComponent<AddingScore>();
-                score.StartCoroutine(score.gameObject.GetComponent<AddingScore>().Score());
-
+                Time.timeScale = scaleTime;
             }
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
@@ -116,6 +117,10 @@ public class PauseMenus : MonoBehaviour {
             curMenu = CurMenu.Video;
             menusAnim.Play("CloseOptions");
             StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenVideo"));
+
+            //Here we are just making sure the qualty matches the quality text
+            Text qualityText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
+            PlayerPrefs.GetString("_Quality", qualityText.text);
         }
     }
 
@@ -192,7 +197,7 @@ public class PauseMenus : MonoBehaviour {
             _audio.PlayOneShot(select, SFXvolume);
             curMenu = CurMenu.Audio;
             menusAnim.Play("CloseOptions");
-            StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenAudio"));
+            StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenAudio"));
         }
     }
     //sends the player to the Controls
@@ -200,7 +205,7 @@ public class PauseMenus : MonoBehaviour {
     {
         curMenu = CurMenu.Controls;
         menusAnim.Play("CloseOptions");
-        StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "Controls"));
+        StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "Controls"));
         _audio.pitch = 1.2f;
         _audio.PlayOneShot(select, SFXvolume);
     }
@@ -215,22 +220,42 @@ public class PauseMenus : MonoBehaviour {
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
             menusAnim.Play("ClosePauseMenus");
-            StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
+            StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
 
-            //Here we are just making sure the qualty matches the quality text
-            Text qualityText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
-            switch (quality)
+            //Here we are just making sure the enums match their texts/strings
+            Text temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/GameSpeedValue").GetComponent<Text>();
+            switch (gameSpeed)
             {
-                default:
-                    qualityText.text = "Poor";
+                case GameSpeed.Slowest:
+                    temp.text = "Slowest";
                     break;
-                case Quality.Good:
-                    qualityText.text = "Good";
+                case GameSpeed.Slow:
+                    temp.text = "Slow";
                     break;
-                case Quality.High:
-                    qualityText.text = "High";
+                case GameSpeed.Normal:
+                    temp.text = "Normal";
+                    break;
+                case GameSpeed.Fast:
+                    temp.text = "Fast";
+                    break;
+                case GameSpeed.Fastest:
+                    temp.text = "Fastest";
                     break;
             }
+            temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/DiffText").GetComponent<Text>();
+            switch (difficulty)
+            {
+                case Difficulty.Easy:
+                    temp.text = "Easy";
+                    break;
+                case Difficulty.Normal:
+                    temp.text = "Normal";
+                    break;
+                case Difficulty.Hard:
+                    temp.text = "Hard";
+                    break;
+            }
+
         }
     }
     
@@ -248,7 +273,7 @@ public class PauseMenus : MonoBehaviour {
              else//resets the level
                 curMenu = CurMenu.Reset;
             menusAnim.Play("ClosePauseMenus");
-            StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenQuit"));
+            StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenQuit"));
         }
     }
 
@@ -262,7 +287,11 @@ public class PauseMenus : MonoBehaviour {
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
             if (curMenu == CurMenu.Quit)
+            {
+                Time.timeScale = scaleTime;
+                gamePaused = false;
                 SceneManager.LoadScene("MainLobby");
+            }
             else if (curMenu == CurMenu.Reset)
             {
                 ResetLevel();
@@ -343,12 +372,12 @@ public class PauseMenus : MonoBehaviour {
                     default:
                         quality = Quality.Good;
                         qualityText.text = "Good";
-                        QualitySettings.SetQualityLevel(2);
+                        QualitySettings.SetQualityLevel(1);
                         break;
                     case Quality.Good:
                         quality = Quality.High;
                         qualityText.text = "High";
-                        QualitySettings.SetQualityLevel(3);
+                        QualitySettings.SetQualityLevel(2);
                         break;
                     case Quality.High:
                         quality = Quality.Poor;
@@ -369,30 +398,30 @@ public class PauseMenus : MonoBehaviour {
                 Text qualityText = GameObject.Find("Canvas/Pause/Menus/OptionMenus/GameSpeedValue").GetComponent<Text>();
                 switch (gameSpeed)
                 {
-                    default:
-                        gameSpeed = GameSpeed.Normal;
-                        qualityText.text = "Normal";
-                        Time.timeScale = 1.2f;
-                        break;
-                    case GameSpeed.Normal:
-                        gameSpeed = GameSpeed.Fast;
-                        qualityText.text = "Fast";
-                        Time.timeScale = 1.4f;
-                        break;
-                    case GameSpeed.Fast:
-                        gameSpeed = GameSpeed.Fastest;
-                        qualityText.text = "Fastest";
-                        Time.timeScale = 1.6f;
-                        break;
+                 default:
+                    gameSpeed = GameSpeed.Normal;
+                    qualityText.text = "Normal";
+                    scaleTime = 1.2f;
+                    break;
+                 case GameSpeed.Normal:
+                    gameSpeed = GameSpeed.Fast;
+                    qualityText.text = "Fast";
+                    scaleTime = 1.4f;
+                    break;
+                 case GameSpeed.Fast:
+                    gameSpeed = GameSpeed.Fastest;
+                    qualityText.text = "Fastest";
+                    scaleTime = 1.6f;
+                    break;
                 case GameSpeed.Fastest:
                     gameSpeed = GameSpeed.Slowest;
                     qualityText.text = "Slowest";
-                    Time.timeScale = .8f;
+                    scaleTime = .8f;
                     break;
                 case GameSpeed.Slowest:
                     gameSpeed = GameSpeed.Slow;
                     qualityText.text = "Slow";
-                    Time.timeScale = 1f;
+                    scaleTime = 1f;
                     break;
             }
                 _audio.pitch = 1.2f;
@@ -453,78 +482,34 @@ public class PauseMenus : MonoBehaviour {
                 case CurMenu.Options:
                     menusAnim.Play("CloseOptions");
                     curMenu = CurMenu.Pause;
-                    StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenPauseMenus"));
+                    StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenPauseMenus"));
                     break;
                 case CurMenu.Audio:
                     menusAnim.Play("CloseAudio");
                     curMenu = CurMenu.Options;
-                    StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
+                    StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
                     break;
                 case CurMenu.Video:
                     menusAnim.Play("CloseVideo");
                     curMenu = CurMenu.Options;
-                    StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
+                    StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
                     break;
                 case CurMenu.Quit:
                     menusAnim.Play("CloseQuit");
                     curMenu = CurMenu.Pause;
-                    StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenPauseMenus"));
+                    StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenPauseMenus"));
                     break;
                 case CurMenu.Controls:
                     menusAnim.Play("CloseControls");
                     curMenu = CurMenu.Options;
-                    StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
+                    StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
                     break;
                 case CurMenu.Reset:
                     goto case CurMenu.Quit;
             }
         }
-        Save();
+        SaveLoadPrefs.Save();
     }
-    //saving all data
-    public static void Save()
-    {
-        PlayerPrefs.SetFloat("BGMVolume",BGMvolume);
-        PlayerPrefs.SetFloat("SFXVolume", SFXvolume);
-        switch (difficulty)
-        {
-            case Difficulty.Easy:
-                PlayerPrefs.SetInt("Diff", (int)Difficulty.Easy);
-                break;
-            case Difficulty.Normal:
-                PlayerPrefs.SetInt("Diff", (int)Difficulty.Normal);
-                break;
-            case Difficulty.Hard:
-                PlayerPrefs.SetInt("Diff", (int)Difficulty.Hard);
-                break;
-        }
-        switch (gameSpeed)
-        {
-            case GameSpeed.Slowest:
-                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Slowest);
-                break;
-            case GameSpeed.Slow:
-                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Slow);
-                break;
-            case GameSpeed.Normal:
-                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Normal);
-                break;
-            case GameSpeed.Fast:
-                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Fast);
-                break;
-            case GameSpeed.Fastest:
-                PlayerPrefs.SetInt("GameSpeed", (int)GameSpeed.Fastest);
-                break;
-        }
-    }
-    //loading prefs
-    public static void Load()
-    {
-        PlayerPrefs.GetFloat("BGMVolume", BGMvolume);
-        PlayerPrefs.GetFloat("SFXVolume", SFXvolume);
-        print(BGMvolume);
-    }
-
     //this changes the font for the current selected menu item and returns the font size of all other menu options
     public void Highlight()
     {
@@ -573,12 +558,20 @@ public class PauseMenus : MonoBehaviour {
         myEvent.currentSelectedGameObject.GetComponent<Outline>().enabled = true;
     }
 
+    private IEnumerator MyCoroutine(float wait, string anim)
+    {
+        yield return StartCoroutine(WaitTime(wait, anim));
+    }
 
     IEnumerator WaitTime(float wait, string anim)
     {
         //finding the event system and assigning it to this temp variable
         UnityEngine.EventSystems.EventSystem myEvent = GameObject.Find("Canvas/EventSystem").GetComponent<UnityEngine.EventSystems.EventSystem>();
-        yield return new WaitForSeconds(wait);
+        float start = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < start + wait)
+        {
+            yield return null;
+        }
         //playing the next animations by which the string is passed through the parameters of this function
         menusAnim.Play(anim);
         //finding the first button in the menu and setting that as the current selected button
@@ -612,7 +605,11 @@ public class PauseMenus : MonoBehaviour {
             case CurMenu.Reset:
                 goto case CurMenu.Quit;
         }
-        yield return new WaitForSeconds(menusAnim.GetCurrentAnimatorStateInfo(0).length);
+        start = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < start + menusAnim.GetCurrentAnimatorStateInfo(0).length)
+        {
+            yield return null;
+        }
         isPlaying = false;
     }
 }
