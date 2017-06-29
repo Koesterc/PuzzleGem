@@ -39,8 +39,8 @@ public class PauseMenus : MonoBehaviour {
     //this enum determins which menu the player is currently on
     public enum CurMenu { Pause, Options, Audio, Video, Controls, Reset, Quit }
     public static CurMenu curMenu;
-    enum AudioSettings { Stereo, Mono }
-    private static AudioSettings audioSettings;
+    public enum AudioSettings { Stereo, Mono }
+    public static AudioSettings audioSettings;
     public enum Difficulty { Easy, Normal, Hard }
     public static Difficulty difficulty;
     public enum Quality { Poor, Good, High }
@@ -58,6 +58,13 @@ public class PauseMenus : MonoBehaviour {
 
     void Start()
     {
+        if (PlayerPrefs.HasKey("brightness"))
+        {
+            Color myColor = GameObject.Find("Canvas/Brightness").GetComponent<Image>().color;
+            myColor.a = PlayerPrefs.GetFloat("brightness");
+            GameObject.Find("Canvas/Brightness").GetComponent<Image>().color = myColor;
+        }
+
         curMenu = CurMenu.Pause;
         //just to avoid any null references for the static variable, we're going to find the audio source
         _audio = gameObject.GetComponent<AudioSource>();
@@ -71,7 +78,6 @@ public class PauseMenus : MonoBehaviour {
         scaleTime = 1f;
         SFXvolume = .8f;
         BGMvolume = .3f;
-        brightness = 255;
         //loading all player prefs
         SaveLoadPrefs.Load();
     }
@@ -115,12 +121,34 @@ public class PauseMenus : MonoBehaviour {
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
             curMenu = CurMenu.Video;
+            Text myText;
+            Slider myslider;
+            //adjusting the texts/strings to match their current settings
+            if (PlayerPrefs.HasKey("brightnessSlider"))
+            {
+                myslider = GameObject.Find("Canvas/Pause/Menus/VideoMenus/Brightness/Slider").GetComponent<Slider>();
+                myslider.value = PlayerPrefs.GetInt("brightnessSlider");
+                myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/BrightnessValue").GetComponent<Text>();
+                myText.text = PlayerPrefs.GetInt("brightnessSlider").ToString();
+            }
+            myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
+            myText.text = quality.ToString();
+            myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/ResolutionValue").GetComponent<Text>();
+            switch (resolution)
+            {
+                default:
+                    myText.text = "Full Screen";
+                    break;
+                case Resolution.Small:
+                    myText.text = "600x400";
+                    break;
+                case Resolution.Medium:
+                    myText.text = "800x600";
+                    break;
+            }
+
             menusAnim.Play("CloseOptions");
             StartCoroutine(WaitTime(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenVideo"));
-
-            //Here we are just making sure the qualty matches the quality text
-            Text qualityText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
-            PlayerPrefs.GetString("_Quality", qualityText.text);
         }
     }
 
@@ -196,6 +224,18 @@ public class PauseMenus : MonoBehaviour {
             _audio.pitch = 1.2f;
             _audio.PlayOneShot(select, SFXvolume);
             curMenu = CurMenu.Audio;
+            //setting all the text to their current values
+            Text myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/BGMValue").GetComponent<Text>();
+            myText.text = (BGMvolume * 10).ToString();
+            myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/SFXValue").GetComponent<Text>();
+            myText.text = (SFXvolume * 10).ToString();
+            myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/Audio").GetComponent<Text>();
+            myText.text = audioSettings.ToString();
+            Slider myslider = GameObject.Find("Canvas/Pause/Menus/AudioMenus/SFXVolume/Slider").GetComponent<Slider>();
+            myslider.value = (int)(SFXvolume*10);
+            myslider = GameObject.Find("Canvas/Pause/Menus/AudioMenus/BGMVolume/Slider").GetComponent<Slider>();
+            myslider.value = (int)(BGMvolume*10);
+
             menusAnim.Play("CloseOptions");
             StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenAudio"));
         }
@@ -224,38 +264,9 @@ public class PauseMenus : MonoBehaviour {
 
             //Here we are just making sure the enums match their texts/strings
             Text temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/GameSpeedValue").GetComponent<Text>();
-            switch (gameSpeed)
-            {
-                case GameSpeed.Slowest:
-                    temp.text = "Slowest";
-                    break;
-                case GameSpeed.Slow:
-                    temp.text = "Slow";
-                    break;
-                case GameSpeed.Normal:
-                    temp.text = "Normal";
-                    break;
-                case GameSpeed.Fast:
-                    temp.text = "Fast";
-                    break;
-                case GameSpeed.Fastest:
-                    temp.text = "Fastest";
-                    break;
-            }
+            temp.text = gameSpeed.ToString();
             temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/DiffText").GetComponent<Text>();
-            switch (difficulty)
-            {
-                case Difficulty.Easy:
-                    temp.text = "Easy";
-                    break;
-                case Difficulty.Normal:
-                    temp.text = "Normal";
-                    break;
-                case Difficulty.Hard:
-                    temp.text = "Hard";
-                    break;
-            }
-
+            temp.text = difficulty.ToString();
         }
     }
     
@@ -352,7 +363,6 @@ public class PauseMenus : MonoBehaviour {
                         sound.enabled = true;
                         sound = GameObject.Find("GameManager/Music").GetComponent<AudioHighPassFilter>();
                         sound.enabled = true;
-
                         break;
                 }
                 _audio.pitch = 1.2f;
@@ -443,7 +453,7 @@ public class PauseMenus : MonoBehaviour {
     //adjusting the BGM volume
     public void Brightness()
     {
-        brightness = 255/(brightnessSlider.value *255);
+        brightness = 255/(brightnessSlider.value * 255);
         //changing the text to match the value of brightness
         Text myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/BrightnessValue").GetComponent<Text>();
         myText.text = brightnessSlider.value.ToString();
@@ -490,6 +500,7 @@ public class PauseMenus : MonoBehaviour {
                     StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
                     break;
                 case CurMenu.Video:
+                    PlayerPrefs.SetInt("brightnessSlider", (int)GameObject.Find("Canvas/Pause/Menus/VideoMenus/Brightness/Slider").GetComponent<Slider>().value);
                     menusAnim.Play("CloseVideo");
                     curMenu = CurMenu.Options;
                     StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));

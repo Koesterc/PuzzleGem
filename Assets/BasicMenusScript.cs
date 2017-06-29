@@ -171,6 +171,9 @@ public class BasicMenusScript : MonoBehaviour {
         Color c = button[0].GetComponent<Text>().color;
         c.a = .05f;
         au.PlayOneShot(click, PauseMenus.SFXvolume);
+        MusicScript music = GameObject.Find("GameManager/Music").GetComponent<MusicScript>();
+        music.StopAllCoroutines();
+        music.StartCoroutine(music.MusicOff());
         foreach (Transform child in gameObject.transform)
         {
             child.gameObject.GetComponent<Text>().color = c;

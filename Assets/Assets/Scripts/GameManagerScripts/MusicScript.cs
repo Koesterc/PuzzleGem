@@ -9,19 +9,50 @@ public class MusicScript : MonoBehaviour
     [SerializeField]
     AudioClip[] music;
     public static AudioSource auSource;
+    [SerializeField]
+    int curMusic;
 
     private void Start()
     {
         auSource = gameObject.GetComponent<AudioSource>();
-        int temp = Random.Range (0, music.Length);
-        auSource.clip = music[temp];
+        curMusic = Random.Range (0, music.Length);
+        auSource.clip = music[curMusic];
         auSource.Play();
+        //setting or applying the audio settings
+        AudioHighPassFilter filter = GameObject.Find("GameManager/Sound").GetComponent<AudioHighPassFilter>();
+        if (PauseMenus.audioSettings == PauseMenus.AudioSettings.Mono)
+        {
+            filter.enabled = true;
+            gameObject.GetComponent<AudioHighPassFilter>().enabled = true;
+        }
+        else
+        {
+            filter.enabled = false;
+            gameObject.GetComponent<AudioHighPassFilter>().enabled = false;
+        }
+        StartCoroutine(LerpMusic());
 
     }
 
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    IEnumerator LerpMusic()
+    {
+        while (auSource.volume < PauseMenus.BGMvolume)
+        {
+            auSource.volume += .01f;
+            if (auSource.volume > PauseMenus.BGMvolume)
+                auSource.volume = PauseMenus.BGMvolume;
+            yield return new WaitForSeconds(.1f);
+        }
+    }
+
+    public IEnumerator MusicOff()
+    {
+        while (auSource.volume > 0)
+        {
+            auSource.volume -= .01f;
+            if (auSource.volume < 0)
+                auSource.volume = 0;
+            yield return new WaitForSeconds(.01f);
+        }
+    }
 }

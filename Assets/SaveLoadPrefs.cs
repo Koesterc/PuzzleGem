@@ -7,17 +7,27 @@ public class SaveLoadPrefs : MonoBehaviour {
     //loading prefs
     public static void Load()
     {
-        PauseMenus.BGMvolume = PlayerPrefs.GetFloat("BGMVolume");
-        PauseMenus.SFXvolume = PlayerPrefs.GetFloat("SFXVolume");
-        PauseMenus.brightness = PlayerPrefs.GetFloat("Brightness");
-        PauseMenus.scaleTime = PlayerPrefs.GetFloat("scaleTime");
+        if (PlayerPrefs.HasKey("BGMvolume"))
+            PauseMenus.BGMvolume = PlayerPrefs.GetFloat("BGMvolume");
+        if (PlayerPrefs.HasKey("SFXvolume"))
+            PauseMenus.SFXvolume = PlayerPrefs.GetFloat("SFXvolume");
+        if (PlayerPrefs.HasKey("brightness"))
+            PauseMenus.brightness = PlayerPrefs.GetFloat("brightness");
+        if (PlayerPrefs.HasKey("scaleTime"))
+            PauseMenus.scaleTime = PlayerPrefs.GetFloat("scaleTime");
 
-        PauseMenus.difficulty = (PauseMenus.Difficulty)PlayerPrefs.GetInt("Diff");
-        PauseMenus.gameSpeed = (PauseMenus.GameSpeed)PlayerPrefs.GetInt("GameSpeed");
-        PauseMenus.quality = (PauseMenus.Quality)PlayerPrefs.GetInt("Quality");
-        PauseMenus.resolution = (PauseMenus.Resolution)PlayerPrefs.GetInt("Resolution");
+        if (PlayerPrefs.HasKey("difficulty"))
+            PauseMenus.difficulty = (PauseMenus.Difficulty)PlayerPrefs.GetInt("difficulty");
+        if (PlayerPrefs.HasKey("gameSpeed"))
+            PauseMenus.gameSpeed = (PauseMenus.GameSpeed)PlayerPrefs.GetInt("gameSpeed");
+        if (PlayerPrefs.HasKey("quality"))
+            PauseMenus.quality = (PauseMenus.Quality)PlayerPrefs.GetInt("Quality");
+        if (PlayerPrefs.HasKey("resolution"))
+            PauseMenus.resolution = (PauseMenus.Resolution)PlayerPrefs.GetInt("resolution");
+        if (PlayerPrefs.HasKey("audioSettings"))
+            PauseMenus.audioSettings = (PauseMenus.AudioSettings)PlayerPrefs.GetInt("AudioSettings");
 
-     
+
         switch (PauseMenus.quality)
         {
             default:
@@ -51,15 +61,16 @@ public class SaveLoadPrefs : MonoBehaviour {
     //saving all data
     public static void Save()
     {
-        PlayerPrefs.SetFloat("BGMVolume", PauseMenus.BGMvolume);
-        PlayerPrefs.SetFloat("SFXVolume", PauseMenus.SFXvolume);
-        PlayerPrefs.SetFloat("Brightness", PauseMenus.brightness);
+        PlayerPrefs.SetFloat("BGMvolume", PauseMenus.BGMvolume);
+        PlayerPrefs.SetFloat("SFXvolume", PauseMenus.SFXvolume);
+        PlayerPrefs.SetFloat("brightness", PauseMenus.brightness);
         PlayerPrefs.SetFloat("scaleTime", PauseMenus.scaleTime);
 
-        PlayerPrefs.SetInt("Diff", (int)PauseMenus.difficulty);
-        PlayerPrefs.SetInt("GameSpeed", (int)PauseMenus.gameSpeed);
-        PlayerPrefs.SetInt("Resolution", (int)PauseMenus.resolution);
-        PlayerPrefs.SetInt("Quality", (int)PauseMenus.quality);
+        PlayerPrefs.SetInt("difficulty", (int)PauseMenus.difficulty);
+        PlayerPrefs.SetInt("gameSpeed", (int)PauseMenus.gameSpeed);
+        PlayerPrefs.SetInt("resolution", (int)PauseMenus.resolution);
+        PlayerPrefs.SetInt("quality", (int)PauseMenus.quality);
+        PlayerPrefs.SetInt("audioSettings", (int)PauseMenus.audioSettings);
 
         //PlayerPrefs.Save();
     }
