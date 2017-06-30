@@ -18,18 +18,6 @@ public class MusicScript : MonoBehaviour
         curMusic = Random.Range (0, music.Length);
         auSource.clip = music[curMusic];
         auSource.Play();
-        //setting or applying the audio settings
-        AudioHighPassFilter filter = GameObject.Find("GameManager/Sound").GetComponent<AudioHighPassFilter>();
-        if (PauseMenus.audioSettings == PauseMenus.AudioSettings.Mono)
-        {
-            filter.enabled = true;
-            gameObject.GetComponent<AudioHighPassFilter>().enabled = true;
-        }
-        else
-        {
-            filter.enabled = false;
-            gameObject.GetComponent<AudioHighPassFilter>().enabled = false;
-        }
         StartCoroutine(LerpMusic());
 
     }

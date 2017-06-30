@@ -58,13 +58,6 @@ public class PauseMenus : MonoBehaviour {
 
     void Start()
     {
-        if (PlayerPrefs.HasKey("brightness"))
-        {
-            Color myColor = GameObject.Find("Canvas/Brightness").GetComponent<Image>().color;
-            myColor.a = PlayerPrefs.GetFloat("brightness");
-            GameObject.Find("Canvas/Brightness").GetComponent<Image>().color = myColor;
-        }
-
         curMenu = CurMenu.Pause;
         //just to avoid any null references for the static variable, we're going to find the audio source
         _audio = gameObject.GetComponent<AudioSource>();
@@ -131,20 +124,28 @@ public class PauseMenus : MonoBehaviour {
                 myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/BrightnessValue").GetComponent<Text>();
                 myText.text = PlayerPrefs.GetInt("brightnessSlider").ToString();
             }
-            myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
-            myText.text = quality.ToString();
-            myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/ResolutionValue").GetComponent<Text>();
-            switch (resolution)
+            if (PlayerPrefs.HasKey("quality"))
             {
-                default:
-                    myText.text = "Full Screen";
-                    break;
-                case Resolution.Small:
-                    myText.text = "600x400";
-                    break;
-                case Resolution.Medium:
-                    myText.text = "800x600";
-                    break;
+                PauseMenus.quality = (PauseMenus.Quality)System.Enum.Parse(typeof(PauseMenus.Quality), PlayerPrefs.GetString("quality"));
+                myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/QualityValue").GetComponent<Text>();
+                myText.text = quality.ToString();
+            }
+            myText = GameObject.Find("Canvas/Pause/Menus/VideoMenus/ResolutionValue").GetComponent<Text>();
+            if (PlayerPrefs.HasKey("resolution"))
+            {
+                PauseMenus.resolution = (PauseMenus.Resolution)System.Enum.Parse(typeof(PauseMenus.Resolution), PlayerPrefs.GetString("resolution"));
+                switch (resolution)
+                {
+                    default:
+                        myText.text = "Full Screen";
+                        break;
+                    case Resolution.Small:
+                        myText.text = "600x400";
+                        break;
+                    case Resolution.Medium:
+                        myText.text = "800x600";
+                        break;
+                }
             }
 
             menusAnim.Play("CloseOptions");
@@ -229,8 +230,11 @@ public class PauseMenus : MonoBehaviour {
             myText.text = (BGMvolume * 10).ToString();
             myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/SFXValue").GetComponent<Text>();
             myText.text = (SFXvolume * 10).ToString();
-            myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/Audio").GetComponent<Text>();
-            myText.text = audioSettings.ToString();
+            if (PlayerPrefs.HasKey("audioSettings"))
+            {
+                myText = GameObject.Find("Canvas/Pause/Menus/AudioMenus/Audio").GetComponent<Text>();
+                myText.text = audioSettings.ToString();
+            }
             Slider myslider = GameObject.Find("Canvas/Pause/Menus/AudioMenus/SFXVolume/Slider").GetComponent<Slider>();
             myslider.value = (int)(SFXvolume*10);
             myslider = GameObject.Find("Canvas/Pause/Menus/AudioMenus/BGMVolume/Slider").GetComponent<Slider>();
@@ -263,10 +267,18 @@ public class PauseMenus : MonoBehaviour {
             StartCoroutine(MyCoroutine(menusAnim.GetCurrentAnimatorStateInfo(0).length, "OpenOptions"));
 
             //Here we are just making sure the enums match their texts/strings
-            Text temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/GameSpeedValue").GetComponent<Text>();
-            temp.text = gameSpeed.ToString();
-            temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/DiffText").GetComponent<Text>();
-            temp.text = difficulty.ToString();
+            Text temp;
+            if (PlayerPrefs.HasKey("gameSpeed"))
+            {
+                temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/GameSpeedValue").GetComponent<Text>();
+                temp.text = PlayerPrefs.GetString("gameSpeed").ToString();
+            }
+            if (PlayerPrefs.HasKey("difficulty"))
+            {
+                temp = GameObject.Find("Canvas/Pause/Menus/OptionMenus/DiffText").GetComponent<Text>();
+                PauseMenus.difficulty = (PauseMenus.Difficulty)System.Enum.Parse(typeof(PauseMenus.Difficulty), PlayerPrefs.GetString("difficulty"));
+                temp.text = difficulty.ToString();
+            }
         }
     }
     
