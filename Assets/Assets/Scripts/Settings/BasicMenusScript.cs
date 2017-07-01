@@ -15,6 +15,7 @@ public class BasicMenusScript : MonoBehaviour {
     AudioClip click;
     [SerializeField]
     AudioSource au;
+    public static bool canSelect = true; //determiens whether or not the players can select the menu
 
     bool isLerping = false; //this is used to determine whether or not the coroutine is running
 
@@ -46,7 +47,7 @@ public class BasicMenusScript : MonoBehaviour {
 	
 	public void SelectingNew()
     {
-        if (isLerping)
+        if (isLerping || !canSelect)
             return;
         isLerping = true;
         au.PlayOneShot(hover, PauseMenus.SFXvolume);
