@@ -189,4 +189,9 @@ public class BasicMenusScript : MonoBehaviour {
         yield return new WaitForSeconds(title.GetCurrentAnimatorStateInfo(0).length);
         SceneManager.LoadScene("Level01");
     }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
 }
