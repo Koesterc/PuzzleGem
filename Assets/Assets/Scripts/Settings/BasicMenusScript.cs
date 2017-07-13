@@ -16,6 +16,7 @@ public class BasicMenusScript : MonoBehaviour {
     [SerializeField]
     AudioSource au;
     public static bool canSelect = true; //determiens whether or not the players can select the menu
+    bool isRunning; //determiens wheter or not the credits courotine is running
 
     bool isLerping = false; //this is used to determine whether or not the coroutine is running
 
@@ -154,8 +155,8 @@ public class BasicMenusScript : MonoBehaviour {
         while (lerpTime < .2f)
         {
             transform.rotation = Quaternion.Lerp(a, b, (lerpTime/.2f));
-            lerpTime += Time.deltaTime;
-            yield return new WaitForSeconds(.02f);
+            lerpTime += Time.unscaledDeltaTime;
+            yield return new WaitForSecondsRealtime(.02f);
         }
         foreach (Transform child in menu)
         {
@@ -185,9 +186,54 @@ public class BasicMenusScript : MonoBehaviour {
     public IEnumerator myCor()
     {
         Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
-        title.Play("Crumble");
-        yield return new WaitForSeconds(title.GetCurrentAnimatorStateInfo(0).length);
+        title.Play("Crumble",0,0);
+        yield return new WaitForSecondsRealtime(2.5f);
         SceneManager.LoadScene("Level01");
+    }
+
+    public void Credits()
+    {
+        Animator anim1 = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
+        anim1.Play("CreditChange");
+        if (isRunning)
+        {
+            StopAllCoroutines();
+        }
+        else
+        {
+            au.PlayOneShot(click, PauseMenus.SFXvolume);
+            Color c = button[0].GetComponent<Text>().color;
+            c.a = 0;
+            foreach (Transform child in gameObject.transform)
+            {
+                child.gameObject.GetComponent<Text>().color = c;
+                child.gameObject.GetComponent<Text>().raycastTarget = false;
+            }
+            StartCoroutine(CreditCoroutine());
+        }
+    }
+
+    public IEnumerator CreditCoroutine()
+    {
+        Animator anim = GameObject.Find("Canvas/Menus/Credits").GetComponent<Animator>();
+        anim.Play("Roll", 0, 0);
+        while (anim.GetCurrentAnimatorStateInfo(0).length == 1)
+        {
+            yield return null;
+        }
+        Color c = button[0].GetComponent<Text>().color;
+        c.a = .5f;
+        Animator anim1 = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
+        while (anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+        {
+            yield return null;
+        }
+        anim1.Play("ChangeTitle",0,0);
+        foreach (Transform child in gameObject.transform)
+        {
+            child.gameObject.GetComponent<Text>().color = c;
+            child.gameObject.GetComponent<Text>().raycastTarget = true;
+        }
     }
 
     public void Quit()

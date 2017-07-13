@@ -313,7 +313,9 @@ public class PauseMenus : MonoBehaviour {
             {
                 Time.timeScale = scaleTime;
                 gamePaused = false;
-                SceneManager.LoadScene("MainLobby");
+                Animator effect = GameObject.Find("Canvas/ScreenEffect").GetComponent<Animator>();
+                effect.Play("TransitionOut");
+                StartCoroutine(FadeOut(1f));
             }
             else if (curMenu == CurMenu.Reset)
             {
@@ -584,6 +586,22 @@ public class PauseMenus : MonoBehaviour {
     private IEnumerator MyCoroutine(float wait, string anim)
     {
         yield return StartCoroutine(WaitTime(wait, anim));
+    }
+
+    //these two coroutines are for the fade out screen
+    private IEnumerator FadeOut(float wait)
+    {
+        yield return StartCoroutine(QuitTime(wait));
+    }
+
+    IEnumerator QuitTime(float wait)
+    {
+        float start = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup < start + wait)
+        {
+            yield return null;
+        }
+        SceneManager.LoadScene("MainLobby");
     }
 
     IEnumerator WaitTime(float wait, string anim)

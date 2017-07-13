@@ -9,9 +9,16 @@ public class LobbyMenus : MonoBehaviour
     private CurMenu curMenu;
     [SerializeField]
     Transform options;
+    [SerializeField]
+    AudioClip hover;
+    [SerializeField]
+    AudioClip click;
+    [SerializeField]
+    AudioSource au;
 
     public void Options()
     {
+        au.PlayOneShot(click, PauseMenus.SFXvolume);
         GameObject myObject = GameObject.Find("Canvas/Menus/Basic/Options");
         myObject.GetComponent<Text>().raycastTarget = false;
         myObject = GameObject.Find("Canvas/Menus/Basic/Leaderboards");
@@ -31,6 +38,7 @@ public class LobbyMenus : MonoBehaviour
         {
             default:
                 curMenu = CurMenu.Options;
+                au.PlayOneShot(click, PauseMenus.SFXvolume);
                 break;
             case CurMenu.Options:
                 curMenu = CurMenu.Basic;
@@ -42,6 +50,7 @@ public class LobbyMenus : MonoBehaviour
                 myObject.GetComponent<Text>().raycastTarget = true;
                 GetComponent<Animator>().Play("FromOptions");
                 BasicMenusScript.canSelect = true;
+                au.PlayOneShot(click, PauseMenus.SFXvolume);
                 break;
         }
     }
@@ -49,11 +58,10 @@ public class LobbyMenus : MonoBehaviour
     {
         Color c = Color.white;
         c.a = .05f;
+        au.PlayOneShot(hover, PauseMenus.SFXvolume);
         foreach (Transform item in options)
         {
-            //item.gameObject.GetComponent<Outline>().enabled = false;
             item.gameObject.GetComponent<Text>().color = c;
-            // item.gameObject.SetActive(false);
         }
         c.a = 1f;
         UnityEngine.EventSystems.EventSystem myEvent = GameObject.Find("Canvas/EventSystem").GetComponent<UnityEngine.EventSystems.EventSystem>();

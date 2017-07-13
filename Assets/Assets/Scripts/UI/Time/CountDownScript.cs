@@ -54,6 +54,10 @@ public class CountDownScript : MonoBehaviour {
             {
                 miliSeconds = 10f;
                 countDownTimer -= 1;
+                if (countDownTimer > 10)
+                    gameObject.GetComponent<Animator>().Play("Subtract", 0, 0);
+                else
+                    gameObject.GetComponent<Animator>().Play("DangerouslyLow", 0, 0);
                 if (countDownTimer <= 10)
                     sounds.PlayOneShot(tick, PauseMenus.SFXvolume);
             }
@@ -63,7 +67,8 @@ public class CountDownScript : MonoBehaviour {
                 //show score
                //end game
             }
-            myText.text = string.Format("{0}.{1}", countDownTimer, (int)miliSeconds);
+            //myText.text = string.Format("{0}.{1}", countDownTimer, (int)miliSeconds);
+            myText.text = countDownTimer.ToString();
             Color lerpedOutline = Color.Lerp(end, start, countDownTimer/placeholder);
             Color lerpedFont = Color.Lerp(_end, _start, countDownTimer / placeholder);
             myOutline.effectColor = lerpedOutline;

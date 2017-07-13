@@ -19,7 +19,28 @@ public class SaveLoadPrefs : MonoBehaviour {
         if (PlayerPrefs.HasKey("difficulty"))
             PauseMenus.difficulty = (PauseMenus.Difficulty)System.Enum.Parse(typeof(PauseMenus.Difficulty), PlayerPrefs.GetString("difficulty"));
         if (PlayerPrefs.HasKey("gameSpeed"))
+        {
             PauseMenus.gameSpeed = (PauseMenus.GameSpeed)System.Enum.Parse(typeof(PauseMenus.GameSpeed), PlayerPrefs.GetString("gameSpeed"));
+            switch (PauseMenus.gameSpeed)
+            {
+                case PauseMenus.GameSpeed.Slowest:
+                    Time.timeScale = .8f;
+                    break;
+                case PauseMenus.GameSpeed.Slow:
+                    Time.timeScale = 1;
+                    break;
+                case PauseMenus.GameSpeed.Normal:
+                    Time.timeScale = 1.2f;
+                    break;
+                case PauseMenus.GameSpeed.Fast:
+                    Time.timeScale = 1.4f;
+                    break;
+                case PauseMenus.GameSpeed.Fastest:
+                    Time.timeScale = 1.6f;
+                    break;
+            }
+            PauseMenus.scaleTime = Time.timeScale;
+        }
         if (PlayerPrefs.HasKey("quality"))
             PauseMenus.quality = (PauseMenus.Quality)System.Enum.Parse(typeof(PauseMenus.Quality), PlayerPrefs.GetString("quality"));
         if (PlayerPrefs.HasKey("resolution"))
