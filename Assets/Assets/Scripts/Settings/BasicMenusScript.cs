@@ -39,6 +39,7 @@ public class BasicMenusScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        canSelect = true;
         //loading all data
         SaveLoadPrefs.Load();
         au.volume = PauseMenus.SFXvolume;
@@ -181,8 +182,10 @@ public class BasicMenusScript : MonoBehaviour {
 
     public void GameStart()
     {
+        SaveLoadPrefs.Load();
+        canSelect = false;
         Color c = button[0].GetComponent<Text>().color;
-        c.a = .05f;
+        c.a = 0;
         au.PlayOneShot(click, PauseMenus.SFXvolume);
         MusicScript music = GameObject.Find("GameManager/Music").GetComponent<MusicScript>();
         music.StopAllCoroutines();
@@ -194,6 +197,10 @@ public class BasicMenusScript : MonoBehaviour {
             child.gameObject.GetComponent<Text>().raycastTarget = false;
             child.gameObject.transform.localScale = new Vector3(1,1,1);
         }
+        c.a = .05f;
+        GameObject.Find("Canvas/Menus/Basic/Campaign").GetComponent<Text>().color = c;
+        GameObject.Find("Canvas/Menus/Basic/Quit").GetComponent<Text>().color = c;
+        GameObject.Find("Canvas/Menus/Basic/Arcade").GetComponent<Text>().color = c;
         StartCoroutine(myCor());
     }
     public IEnumerator myCor()
@@ -223,6 +230,7 @@ public class BasicMenusScript : MonoBehaviour {
 
     public IEnumerator CreditCoroutine()
     {
+        canSelect = false;
         isRunning = true;
         Animator anim = GameObject.Find("Canvas/Menus/Credits/List").GetComponent<Animator>();
         anim.speed = 1;
@@ -262,6 +270,7 @@ public class BasicMenusScript : MonoBehaviour {
         temp = transform.Find("Options");
         temp.gameObject.GetComponent<Text>().raycastTarget = true;
         temp.gameObject.GetComponent<Text>().color = c;
+        canSelect = true;
     }
 
     public void Quit()

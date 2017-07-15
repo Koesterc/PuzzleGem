@@ -565,7 +565,7 @@ public class PauseMenus : MonoBehaviour {
             case CurMenu.Reset:
                 goto case CurMenu.Quit;
         }
-        _audio.pitch = 1.4f;
+        _audio.pitch = 1f;
         _audio.PlayOneShot(hover, SFXvolume);
     }
 

@@ -43,7 +43,6 @@ public class LobbyMenus : MonoBehaviour
                 break;
             case CurMenu.Options:
                 curMenu = CurMenu.Basic;            
-                GetComponent<Animator>().Play("FromOptions");
                 au.PlayOneShot(click, PauseMenus.SFXvolume);
                 StartCoroutine(FromOptions());
                 break;
@@ -51,6 +50,9 @@ public class LobbyMenus : MonoBehaviour
     }
     IEnumerator FromOptions()
     {
+        GetComponent<Animator>().Play("FromOptions", 0, 0);
+        while (GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime != 0)
+            yield return null;
         while(GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
             yield return null;
         GameObject myObject = GameObject.Find("Canvas/Menus/Basic/Options");
@@ -79,5 +81,9 @@ public class LobbyMenus : MonoBehaviour
         //myEvent.currentSelectedGameObject.GetComponent<Outline>().enabled = true;
         myEvent.currentSelectedGameObject.GetComponent<Text>().color = c;
         myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
+        if (myEvent.currentSelectedGameObject.name == "GameSpeed")
+            myEvent.currentSelectedGameObject.GetComponent<Text>().text = PauseMenus.gameSpeed.ToString();
+        else if (myEvent.currentSelectedGameObject.name == "Difficulty")
+            myEvent.currentSelectedGameObject.GetComponent<Text>().text = PauseMenus.difficulty.ToString();
     }
 }
