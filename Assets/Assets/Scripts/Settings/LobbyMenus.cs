@@ -20,13 +20,14 @@ public class LobbyMenus : MonoBehaviour
     {
         au.PlayOneShot(click, PauseMenus.SFXvolume);
         GameObject myObject = GameObject.Find("Canvas/Menus/Basic/Options");
+        myObject.GetComponent<Animator>().enabled = false;
         myObject.GetComponent<Text>().raycastTarget = false;
         myObject = GameObject.Find("Canvas/Menus/Basic/Leaderboards");
         myObject.GetComponent<Text>().raycastTarget = false;
         myObject = GameObject.Find("Canvas/Menus/Basic/Credits");
         myObject.GetComponent<Text>().raycastTarget = false;
         curMenu = CurMenu.Options;
-        GetComponent<Animator>().Play("ToOptions");
+        GetComponent<Animator>().Play("ToOptions",0,0);
         Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         title.Play("FlippyFlippy");
         BasicMenusScript.canSelect = false;
@@ -41,19 +42,28 @@ public class LobbyMenus : MonoBehaviour
                 au.PlayOneShot(click, PauseMenus.SFXvolume);
                 break;
             case CurMenu.Options:
-                curMenu = CurMenu.Basic;
-                GameObject myObject = GameObject.Find("Canvas/Menus/Basic/Options");
-                myObject.GetComponent<Text>().raycastTarget = true;
-                myObject = GameObject.Find("Canvas/Menus/Basic/Leaderboards");
-                myObject.GetComponent<Text>().raycastTarget = true;
-                myObject = GameObject.Find("Canvas/Menus/Basic/Credits");
-                myObject.GetComponent<Text>().raycastTarget = true;
+                curMenu = CurMenu.Basic;            
                 GetComponent<Animator>().Play("FromOptions");
-                BasicMenusScript.canSelect = true;
                 au.PlayOneShot(click, PauseMenus.SFXvolume);
+                StartCoroutine(FromOptions());
                 break;
         }
     }
+    IEnumerator FromOptions()
+    {
+        while(GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
+            yield return null;
+        GameObject myObject = GameObject.Find("Canvas/Menus/Basic/Options");
+        myObject.GetComponent<Animator>().enabled = true;
+        myObject = GameObject.Find("Canvas/Menus/Basic/Options");
+        myObject.GetComponent<Text>().raycastTarget = true;
+        myObject = GameObject.Find("Canvas/Menus/Basic/Leaderboards");
+        myObject.GetComponent<Text>().raycastTarget = true;
+        myObject = GameObject.Find("Canvas/Menus/Basic/Credits");
+        myObject.GetComponent<Text>().raycastTarget = true;
+        BasicMenusScript.canSelect = true;
+    }
+
     public void Higlight()
     {
         Color c = Color.white;
@@ -62,10 +72,12 @@ public class LobbyMenus : MonoBehaviour
         foreach (Transform item in options)
         {
             item.gameObject.GetComponent<Text>().color = c;
+            item.gameObject.GetComponent<Animator>().enabled = false;
         }
         c.a = 1f;
         UnityEngine.EventSystems.EventSystem myEvent = GameObject.Find("Canvas/EventSystem").GetComponent<UnityEngine.EventSystems.EventSystem>();
         //myEvent.currentSelectedGameObject.GetComponent<Outline>().enabled = true;
         myEvent.currentSelectedGameObject.GetComponent<Text>().color = c;
+        myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
     }
 }

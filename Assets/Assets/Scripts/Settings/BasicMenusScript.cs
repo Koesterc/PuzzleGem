@@ -24,6 +24,14 @@ public class BasicMenusScript : MonoBehaviour {
     {
         //if (!myEvent.currentSelectedGameObject)
         //     myEvent.SetSelectedGameObject(lastSelected);
+        if (Input.anyKeyDown && isRunning)
+        {
+            //isRunning = false;
+            Animator anim = GameObject.Find("Canvas/Menus/Credits/List").GetComponent<Animator>();
+            anim.speed = 10;
+            GameObject go = GameObject.Find("Canvas/Menus/Credits/SkipText");
+            go.SetActive(false);
+        }
 
     }
 
@@ -60,12 +68,15 @@ public class BasicMenusScript : MonoBehaviour {
         {
             child.gameObject.GetComponent<Text>().color = c;
             child.gameObject.GetComponent<Text>().raycastTarget = false;
+            child.gameObject.GetComponent<Animator>().enabled = false;
+            child.gameObject.GetComponent<Transform>().localScale = new Vector3 (1,1,1);
         }
         if (!myEvent.currentSelectedGameObject)
         return;
         c.a = 1f;
         myEvent.currentSelectedGameObject.GetComponent<Text>().fontSize = 33;
         myEvent.currentSelectedGameObject.GetComponent<Text>().color = c;
+        myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
         c.a = .05f;
         if (myEvent.currentSelectedGameObject == button[0])
         {
@@ -176,10 +187,12 @@ public class BasicMenusScript : MonoBehaviour {
         MusicScript music = GameObject.Find("GameManager/Music").GetComponent<MusicScript>();
         music.StopAllCoroutines();
         music.StartCoroutine(music.MusicOff());
+        GameObject.Find("Canvas/Menus/Basic/Campaign").GetComponent<Animator>().enabled = false;
         foreach (Transform child in gameObject.transform)
         {
             child.gameObject.GetComponent<Text>().color = c;
             child.gameObject.GetComponent<Text>().raycastTarget = false;
+            child.gameObject.transform.localScale = new Vector3(1,1,1);
         }
         StartCoroutine(myCor());
     }
@@ -195,12 +208,7 @@ public class BasicMenusScript : MonoBehaviour {
     {
         Animator anim1 = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         anim1.Play("CreditChange");
-        if (isRunning)
-        {
-            StopAllCoroutines();
-        }
-        else
-        {
+        
             au.PlayOneShot(click, PauseMenus.SFXvolume);
             Color c = button[0].GetComponent<Text>().color;
             c.a = 0;
@@ -210,30 +218,50 @@ public class BasicMenusScript : MonoBehaviour {
                 child.gameObject.GetComponent<Text>().raycastTarget = false;
             }
             StartCoroutine(CreditCoroutine());
-        }
+
     }
 
     public IEnumerator CreditCoroutine()
     {
-        Animator anim = GameObject.Find("Canvas/Menus/Credits").GetComponent<Animator>();
+        isRunning = true;
+        Animator anim = GameObject.Find("Canvas/Menus/Credits/List").GetComponent<Animator>();
+        anim.speed = 1;
         anim.Play("Roll", 0, 0);
         while (anim.GetCurrentAnimatorStateInfo(0).length == 1)
         {
             yield return null;
         }
+        GameObject go = GameObject.Find("Canvas/Menus/Credits/SkipText");
+        go.SetActive(true);
         Color c = button[0].GetComponent<Text>().color;
-        c.a = .5f;
+        c.a = 0f;
         Animator anim1 = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         while (anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1)
         {
             yield return null;
         }
-        anim1.Play("ChangeTitle",0,0);
+        isRunning = false;
+        go = GameObject.Find("Canvas/Menus/Credits/SkipText");
+        go.SetActive(false);
+        anim.speed = 1;
+        anim1.Play("ChangeTitle", 0, 0);
+        yield return new WaitForSeconds(1f);
         foreach (Transform child in gameObject.transform)
         {
             child.gameObject.GetComponent<Text>().color = c;
-            child.gameObject.GetComponent<Text>().raycastTarget = true;
+            child.gameObject.GetComponent<Text>().raycastTarget = false;
         }
+        Transform temp = transform.Find("Credits");
+        c.a = 1f;
+        temp.gameObject.GetComponent<Text>().color = c;
+        temp.gameObject.GetComponent<Text>().raycastTarget = true;
+        c.a = .05f;
+        temp = transform.Find("Quit");
+        temp.gameObject.GetComponent<Text>().raycastTarget = true;
+        temp.gameObject.GetComponent<Text>().color = c;
+        temp = transform.Find("Options");
+        temp.gameObject.GetComponent<Text>().raycastTarget = true;
+        temp.gameObject.GetComponent<Text>().color = c;
     }
 
     public void Quit()
