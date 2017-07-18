@@ -111,8 +111,10 @@ public class PauseMenus : MonoBehaviour {
         if (!isPlaying)
         {//checking if an animation is playing before accessing another menu
             isPlaying = true;
-            _audio.pitch = 1.2f;
+            _audio.pitch = 1f;
             _audio.PlayOneShot(select, SFXvolume);
+            if (PlayerPrefs.HasKey("resolution"))
+                PauseMenus.resolution = (PauseMenus.Resolution)System.Enum.Parse(typeof(PauseMenus.Resolution), PlayerPrefs.GetString("resolution"));
             curMenu = CurMenu.Video;
             Text myText;
             Slider myslider;
@@ -177,7 +179,7 @@ public class PauseMenus : MonoBehaviour {
                     myText.text = "Full Screen";
                     break;
             }
-            _audio.pitch = 1.2f;
+            _audio.pitch = 1f;
             _audio.PlayOneShot(select, SFXvolume);
         }
     }

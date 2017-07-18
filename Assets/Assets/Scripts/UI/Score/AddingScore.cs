@@ -20,6 +20,8 @@ public class AddingScore : MonoBehaviour {
     {
         add += score;
         _score = Score();
+        GameObject.Find("Canvas/UIText/PointsEarned").GetComponent<Text>().text = "+" + score.ToString("n0") + " Points";
+        GameObject.Find("Canvas/UIText/PointsEarned").GetComponent<Animator>().Play("ComboMeter",0,0);
         StopCoroutine(_score);
         StartCoroutine(_score);
     }
@@ -70,7 +72,7 @@ public class AddingScore : MonoBehaviour {
                 add -= 1;
                 score += 1;
             }
-            myScore.text = "Score: " + score.ToString("n0").Replace(score.ToString("n0"), "<color=#3EFF00FF>" + score.ToString("n0") + "</color>");
+            myScore.text = "Score: " + score.ToString("n0").Replace(score.ToString("n0"), "<color=#C5FFC3FF>" + score.ToString("n0") + "</color>");
             yield return new WaitForSeconds(.016f);
         }
     }

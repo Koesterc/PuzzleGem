@@ -39,6 +39,7 @@ public class BasicMenusScript : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        SaveLoadPrefs.Load();
         canSelect = true;
         //loading all data
         SaveLoadPrefs.Load();
@@ -53,12 +54,15 @@ public class BasicMenusScript : MonoBehaviour {
             button.Add(child.gameObject);
         }
         myEvent.SetSelectedGameObject(button[0]);
+        GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>().Play("Intro",0,0);
+        GameObject.Find("Canvas/Menus").GetComponent<Animator>().Play("Introduction", 0, 0);
     }
 	
 	public void SelectingNew()
     {
         if (isLerping || !canSelect)
             return;
+        au.pitch = 1f;
         isLerping = true;
         au.PlayOneShot(hover, PauseMenus.SFXvolume);
  
@@ -182,7 +186,7 @@ public class BasicMenusScript : MonoBehaviour {
 
     public void GameStart()
     {
-        SaveLoadPrefs.Load();
+        au.pitch = 1f;
         canSelect = false;
         Color c = button[0].GetComponent<Text>().color;
         c.a = 0;
@@ -201,18 +205,50 @@ public class BasicMenusScript : MonoBehaviour {
         GameObject.Find("Canvas/Menus/Basic/Campaign").GetComponent<Text>().color = c;
         GameObject.Find("Canvas/Menus/Basic/Quit").GetComponent<Text>().color = c;
         GameObject.Find("Canvas/Menus/Basic/Arcade").GetComponent<Text>().color = c;
-        StartCoroutine(myCor());
+        StartCoroutine(MyCor());
     }
-    public IEnumerator myCor()
+    public IEnumerator MyCor()
     {
         Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         title.Play("Crumble",0,0);
         yield return new WaitForSecondsRealtime(2.5f);
         SceneManager.LoadScene("Level01");
     }
+    //arcade mode
+    public void Arcade()
+    {
+        au.pitch = 1f;
+        canSelect = false;
+        Color c = button[0].GetComponent<Text>().color;
+        c.a = 0;
+        au.PlayOneShot(click, PauseMenus.SFXvolume);
+        MusicScript music = GameObject.Find("GameManager/Music").GetComponent<MusicScript>();
+        music.StopAllCoroutines();
+        music.StartCoroutine(music.MusicOff());
+        GameObject.Find("Canvas/Menus/Basic/Campaign").GetComponent<Animator>().enabled = false;
+        foreach (Transform child in gameObject.transform)
+        {
+            child.gameObject.GetComponent<Text>().color = c;
+            child.gameObject.GetComponent<Text>().raycastTarget = false;
+            child.gameObject.transform.localScale = new Vector3(1, 1, 1);
+        }
+        c.a = .05f;
+        GameObject.Find("Canvas/Menus/Basic/Campaign").GetComponent<Text>().color = c;
+        GameObject.Find("Canvas/Menus/Basic/Leaderboards").GetComponent<Text>().color = c;
+        GameObject.Find("Canvas/Menus/Basic/Arcade").GetComponent<Text>().color = c;
+        StartCoroutine(StartArcade());
+    }
+    public IEnumerator StartArcade()
+    {
+        Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
+        title.Play("Break", 0, 0);
+        yield return new WaitForSecondsRealtime(.5f);
+        SceneManager.LoadScene("Level01");
+    }
 
     public void Credits()
     {
+        au.pitch = 1f;
         Animator anim1 = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         anim1.Play("CreditChange");
         
