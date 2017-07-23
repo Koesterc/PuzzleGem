@@ -41,8 +41,6 @@ public class BasicMenusScript : MonoBehaviour {
     {
         SaveLoadPrefs.Load();
         canSelect = true;
-        //loading all data
-        SaveLoadPrefs.Load();
         au.volume = PauseMenus.SFXvolume;
         //Time.timeScale = PauseMenus.gameSpeed;
 

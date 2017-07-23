@@ -13,7 +13,13 @@ public class PoppingAnimation : MonoBehaviour {
     // Use this for initialization
     void OnDisable()
     {
-        GameObject.Find("Canvas/Menus").GetComponent<LobbyMenus>().Whoop();
+        try
+        {
+            GameObject.Find("Canvas/Menus").GetComponent<LobbyMenus>().Whoop();
+        }
+        catch
+        {
+        }
     }
 
     IEnumerator MyCor(Animator myAnimator)

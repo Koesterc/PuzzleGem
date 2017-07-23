@@ -67,9 +67,13 @@ public class LobbyMenus : MonoBehaviour
                 StartCoroutine(FromOptions());
                 break;
             case CurMenu.Audio:
-                curMenu = CurMenu.Audio;
                 au.PlayOneShot(click, PauseMenus.SFXvolume);
                 GetComponent<Animator>().Play("FromAudio", 0, 0);
+                curMenu = CurMenu.Options;
+                break;
+            case CurMenu.Video:
+                au.PlayOneShot(click, PauseMenus.SFXvolume);
+                GetComponent<Animator>().Play("FromVideo", 0, 0);
                 curMenu = CurMenu.Options;
                 break;
         }
@@ -118,8 +122,6 @@ public class LobbyMenus : MonoBehaviour
             curMenu = CurMenu.Video;
             Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
             title.Play("FlippyFlippy");
-            //GameObject.Find("Canvas/Menus/Basic/Options/Audio/Settings").GetComponent<Text>().text = PauseMenus.audioSettings.ToString();
-            //GameObject.Find("Canvas/Menus/Basic/Options/Audio").GetComponent<Transform>().localScale = new Vector3(1, 1, 1);
         }
     }
 
@@ -271,18 +273,66 @@ public class LobbyMenus : MonoBehaviour
         }
     }
 
+    //highlighting one of the video menus
+    public void VideoHighlight()
+    {
+        au.pitch = 1f;
+        Color c = Color.white;
+        c.a = .8f;
+        au.PlayOneShot(hover, PauseMenus.SFXvolume);
+        foreach (Transform item in vid)
+        {
+            item.gameObject.GetComponent<Text>().color = c;
+            item.gameObject.GetComponent<Animator>().enabled = false;
+            item.gameObject.transform.localScale = new Vector3(1, 1, 1);
+        }
+        c.a = 1f;
+        UnityEngine.EventSystems.EventSystem myEvent = GameObject.Find("Canvas/EventSystem").GetComponent<UnityEngine.EventSystems.EventSystem>();
+        myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
+        myEvent.currentSelectedGameObject.GetComponent<Text>().color = c;
+        myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
+
+        if (myEvent.currentSelectedGameObject.name == "Brightness")
+        {
+
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "<" + Mathf.Round(10 - (PauseMenus.brightness * 10)).ToString() + ">";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Quality").GetComponent<Text>().text = "Quality";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Resolution").GetComponent<Text>().text = "Resolution";
+        }
+        else if (myEvent.currentSelectedGameObject.name == "Quality")
+        {
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "Brightness";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Resolution").GetComponent<Text>().text = "Resolution";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Quality").GetComponent<Text>().text = "<"+PauseMenus.quality.ToString()+">";
+        }
+        else if (myEvent.currentSelectedGameObject.name == "Resolution")
+        {
+            if (PlayerPrefs.HasKey("resolution"))
+                PauseMenus.resolution = (PauseMenus.Resolution)System.Enum.Parse(typeof(PauseMenus.Resolution), PlayerPrefs.GetString("resolution"));
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "Brightness";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Quality").GetComponent<Text>().text = "Quality";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Resolution").GetComponent<Text>().text = "<"+PauseMenus.resolution.ToString()+">";
+        }
+        else
+        {
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "Brightness";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Quality").GetComponent<Text>().text = "Quality";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Resolution").GetComponent<Text>().text = "Resolution";
+        }
+    }
+
     public void BGMVolumeUp()
     {
         if (PauseMenus.BGMvolume < 1)
         {
             au.pitch = 1f;
+            au.PlayOneShot(click, PauseMenus.SFXvolume);
             PauseMenus.BGMvolume += .1f;
             if (PauseMenus.BGMvolume > 1f)
                 PauseMenus.BGMvolume = 1f;
             PlayerPrefs.SetFloat("BGMvolume", PauseMenus.BGMvolume);
             GameObject.Find("Canvas/Menus/Basic/Options/Audio/BGMVolume").GetComponent<Text>().text = "<" + Mathf.Round(PauseMenus.BGMvolume * 10).ToString() + ">";
             GameObject.Find("GameManager/Music").GetComponent<AudioSource>().volume = PauseMenus.BGMvolume;
-            au.PlayOneShot(click, PauseMenus.SFXvolume);
         }
     }
     public void BGMVolumeDown()
@@ -328,38 +378,86 @@ public class LobbyMenus : MonoBehaviour
             au.PlayOneShot(click, PauseMenus.SFXvolume);
         }
     }
-    public void BrightnessUp()
+    public void BrightnessDown()
     {
-        if (PauseMenus.brightness < 1)
+        if (PauseMenus.brightness < .8f)
         {
             au.pitch = 1f;
             PauseMenus.brightness += .1f;
-            if (PauseMenus.brightness > 1)
-                PauseMenus.brightness = 1;
+            if (PauseMenus.brightness > .8f)
+                PauseMenus.brightness = .8f;
             PlayerPrefs.SetFloat("brightness", PauseMenus.brightness);
             Color c = Color.black;
-            c.a = PauseMenus.brightness += .1f;
+            c.a = PauseMenus.brightness;
             GameObject.Find("Canvas/Image").GetComponent<Image>().color = c;
-            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "<" + Mathf.Round(PauseMenus.SFXvolume * 10).ToString() + ">";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "<" + Mathf.Round(10 -(PauseMenus.brightness * 10)).ToString() + ">";
             GameObject.Find("GameManager/Sound").GetComponent<AudioSource>().volume = PauseMenus.BGMvolume;
             au.PlayOneShot(click, PauseMenus.SFXvolume);
         }
     }
-    public void BrightnessDown()
+    public void BrightnessUp()
     {
-        if (PauseMenus.brightness > .2)
+        if (PauseMenus.brightness > 0)
         {
             au.pitch = 1f;
+            au.PlayOneShot(click, PauseMenus.SFXvolume);
             PauseMenus.brightness -= .1f;
-            if (PauseMenus.brightness < .1)
-                PauseMenus.brightness = 1;
+            if (PauseMenus.brightness < 0)
+                PauseMenus.brightness = 0;
             PlayerPrefs.SetFloat("brightness", PauseMenus.brightness);
             Color c = Color.black;
-            c.a = PauseMenus.brightness += .1f;
+            c.a = PauseMenus.brightness;
             GameObject.Find("Canvas/Image").GetComponent<Image>().color = c;
-            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "<" + Mathf.Round(PauseMenus.SFXvolume * 10).ToString() + ">";
+            GameObject.Find("Canvas/Menus/Basic/Options/Video/Brightness").GetComponent<Text>().text = "<" + Mathf.Round(10 - (PauseMenus.brightness * 10)).ToString() + ">";
             GameObject.Find("GameManager/Sound").GetComponent<AudioSource>().volume = PauseMenus.BGMvolume;
-            au.PlayOneShot(click, PauseMenus.SFXvolume);
         }
+    }
+
+    //change resolution
+    public void ChangeResolution()
+    {
+        au.pitch = 1f;
+        au.PlayOneShot(click, PauseMenus.SFXvolume);
+        switch (PauseMenus.resolution)
+        {
+            default:
+                Screen.SetResolution(600, 400, false);
+                PauseMenus.resolution = PauseMenus.Resolution.Small;
+                break;
+            case PauseMenus.Resolution.Small:
+                Screen.SetResolution(800, 600, false);
+                PauseMenus.resolution = PauseMenus.Resolution.Medium;
+                break;
+            case PauseMenus.Resolution.Medium:
+                Screen.SetResolution(Screen.width, Screen.height, true);
+                PauseMenus.resolution = PauseMenus.Resolution.Fullscreen;
+                break;
+        }
+        GameObject.Find("Canvas/Menus/Basic/Options/Video/Resolution").GetComponent<Text>().text = "<" + PauseMenus.resolution.ToString() + ">";
+        PlayerPrefs.SetString("resolution", PauseMenus.resolution.ToString());
+    }
+
+    //change quality
+    public void ChangeQuality()
+    {
+        au.pitch = 1f;
+        au.PlayOneShot(click, PauseMenus.SFXvolume);
+        switch (PauseMenus.quality)
+        {
+            default:
+                PauseMenus.quality = PauseMenus.Quality.Good;
+                QualitySettings.SetQualityLevel(1);
+                break;
+            case PauseMenus.Quality.Good:
+                PauseMenus.quality = PauseMenus.Quality.High;
+                QualitySettings.SetQualityLevel(2);
+                break;
+            case PauseMenus.Quality.High:
+                PauseMenus.quality = PauseMenus.Quality.Poor;
+                QualitySettings.SetQualityLevel(0);
+                break;
+        }
+        GameObject.Find("Canvas/Menus/Basic/Options/Video/Quality").GetComponent<Text>().text = "<" + PauseMenus.quality.ToString() + ">";
+        PlayerPrefs.SetString("quality", PauseMenus.quality.ToString());
     }
 }
