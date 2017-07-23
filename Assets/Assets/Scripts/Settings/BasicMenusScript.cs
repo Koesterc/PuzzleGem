@@ -56,6 +56,9 @@ public class BasicMenusScript : MonoBehaviour {
         myEvent.SetSelectedGameObject(button[0]);
         GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>().Play("Intro",0,0);
         GameObject.Find("Canvas/Menus").GetComponent<Animator>().Play("Introduction", 0, 0);
+        Animator anim = GameObject.Find("Canvas/Background").GetComponent<Animator>();
+        anim.speed = 1;
+        anim.Play("FromBlack", 0, 0);
     }
 	
 	public void SelectingNew()
@@ -82,7 +85,7 @@ public class BasicMenusScript : MonoBehaviour {
         myEvent.currentSelectedGameObject.GetComponent<Text>().fontSize = 33;
         myEvent.currentSelectedGameObject.GetComponent<Text>().color = c;
         myEvent.currentSelectedGameObject.GetComponent<Animator>().enabled = true;
-        c.a = .05f;
+        c.a = .8f;
         if (myEvent.currentSelectedGameObject == button[0])
         {
             lastSelected = button[0];
@@ -268,7 +271,10 @@ public class BasicMenusScript : MonoBehaviour {
     {
         canSelect = false;
         isRunning = true;
-        Animator anim = GameObject.Find("Canvas/Menus/Credits/List").GetComponent<Animator>();
+        Animator anim = GameObject.Find("Canvas/Background").GetComponent<Animator>();
+        anim.speed = 1;
+        anim.Play("TurnBlue", 0, 0);
+        anim = GameObject.Find("Canvas/Menus/Credits/List").GetComponent<Animator>();
         anim.speed = 1;
         anim.Play("Roll", 0, 0);
         while (anim.GetCurrentAnimatorStateInfo(0).length == 1)
@@ -289,6 +295,9 @@ public class BasicMenusScript : MonoBehaviour {
         go.SetActive(false);
         anim.speed = 1;
         anim1.Play("ChangeTitle", 0, 0);
+        anim = GameObject.Find("Canvas/Background").GetComponent<Animator>();
+        anim.speed = 1;
+        anim.Play("FromBlue", 0, 0);
         yield return new WaitForSeconds(1f);
         foreach (Transform child in gameObject.transform)
         {

@@ -47,6 +47,9 @@ public class LobbyMenus : MonoBehaviour
         GetComponent<Animator>().Play("ToOptions",0,0);
         Animator title = GameObject.Find("Canvas/Menus/GameTitle").GetComponent<Animator>();
         title.Play("FlippyFlippy");
+        Animator anim = GameObject.Find("Canvas/Background").GetComponent<Animator>();
+        anim.speed = 1;
+        anim.Play("ToRed", 0, 0);
         BasicMenusScript.canSelect = false;
     }
 
@@ -58,6 +61,9 @@ public class LobbyMenus : MonoBehaviour
             case CurMenu.Options:
                 curMenu = CurMenu.Basic;            
                 au.PlayOneShot(click, PauseMenus.SFXvolume);
+                Animator anim = GameObject.Find("Canvas/Background").GetComponent<Animator>();
+                anim.speed = 1;
+                anim.Play("FromRed", 0, 0);
                 StartCoroutine(FromOptions());
                 break;
             case CurMenu.Audio:
@@ -126,7 +132,6 @@ public class LobbyMenus : MonoBehaviour
             {
                 default:
                 PauseMenus.difficulty = PauseMenus.Difficulty.Normal;
-
                 break;
                 case PauseMenus.Difficulty.Normal:
                 PauseMenus.difficulty = PauseMenus.Difficulty.Hard;
@@ -200,7 +205,7 @@ public class LobbyMenus : MonoBehaviour
         {
             au.pitch = 1f;
             Color c = Color.white;
-            c.a = .05f;
+            c.a = .8f;
             au.PlayOneShot(hover, PauseMenus.SFXvolume);
             foreach (Transform item in options)
             {
@@ -235,7 +240,7 @@ public class LobbyMenus : MonoBehaviour
     {
         au.pitch = 1f;
         Color c = Color.white;
-        c.a = .05f;
+        c.a = .8f;
         au.PlayOneShot(hover, PauseMenus.SFXvolume);
         foreach (Transform item in aud)
         {
