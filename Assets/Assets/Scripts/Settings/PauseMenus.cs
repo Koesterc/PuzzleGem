@@ -61,7 +61,7 @@ public class PauseMenus : MonoBehaviour {
         curMenu = CurMenu.Pause;
         //just to avoid any null references for the static variable, we're going to find the audio source
         _audio = gameObject.GetComponent<AudioSource>();
-        AudioSource music = GameObject.Find("GameManager/Music").GetComponent<AudioSource>();
+        AudioSource music = GameObject.Find("Game Manager/Music").GetComponent<AudioSource>();
         MusicScript.auSource = music;
 
         //setting defaults
@@ -186,8 +186,8 @@ public class PauseMenus : MonoBehaviour {
 
     public void Mute()
     {
-        AudioSource sounds = GameObject.Find("GameManager/Sound").GetComponent<AudioSource>();
-        AudioSource music = GameObject.Find("GameManager/Music").GetComponent<AudioSource>();
+        AudioSource sounds = GameObject.Find("Game Manager/Sound").GetComponent<AudioSource>();
+        AudioSource music = GameObject.Find("Game Manager/Music").GetComponent<AudioSource>();
         Image image = GameObject.Find("Canvas/HUDButtons/Mute").GetComponent<Image>();
 
         if (mute)
@@ -366,18 +366,18 @@ public class PauseMenus : MonoBehaviour {
                         audioSettings = AudioSettings.Stereo;
                         audioText.text = "Stereo";
                         gameObject.GetComponent<AudioHighPassFilter>().enabled = false;
-                        AudioHighPassFilter sound = GameObject.Find("GameManager/Sound").GetComponent<AudioHighPassFilter>();
+                        AudioHighPassFilter sound = GameObject.Find("Game Manager/Sound").GetComponent<AudioHighPassFilter>();
                         sound.enabled = false;
-                        sound = GameObject.Find("GameManager/Music").GetComponent<AudioHighPassFilter>();
+                        sound = GameObject.Find("Game Manager/Music").GetComponent<AudioHighPassFilter>();
                         sound.enabled = false;
                         break;
                     case AudioSettings.Stereo:
                         audioSettings = AudioSettings.Mono;
                         audioText.text = "Mono";
                         gameObject.GetComponent<AudioHighPassFilter>().enabled = true;
-                        sound = GameObject.Find("GameManager/Sound").GetComponent<AudioHighPassFilter>();
+                        sound = GameObject.Find("Game Manager/Sound").GetComponent<AudioHighPassFilter>();
                         sound.enabled = true;
-                        sound = GameObject.Find("GameManager/Music").GetComponent<AudioHighPassFilter>();
+                        sound = GameObject.Find("Game Manager/Music").GetComponent<AudioHighPassFilter>();
                         sound.enabled = true;
                         break;
                 }
