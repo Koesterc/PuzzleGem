@@ -313,7 +313,6 @@ public class PauseMenus : MonoBehaviour {
             _audio.PlayOneShot(select, SFXvolume);
             if (curMenu == CurMenu.Quit)
             {
-                Time.timeScale = scaleTime;
                 gamePaused = false;
                 Animator effect = GameObject.Find("Canvas/ScreenEffect").GetComponent<Animator>();
                 effect.Play("TransitionOut");
